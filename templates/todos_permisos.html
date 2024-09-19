@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos los Permisos</title>
+</head>
+<body>
+    <h2>Todos los Permisos</h2>
+    <a href="{{ url_for('dashboard') }}">Volver al Dashboard</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Tipo de Permiso</th>
+                <th>Descripción</th>
+                <th>Fecha del Permiso</th>
+                <th>Estado</th>
+                <th>Revisado por</th>
+                <th>Comentarios</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for permiso in permisos %}
+            <tr>
+                <td>{{ permiso.empleado }}</td>
+                <td>{{ permiso.tipo_permiso }}</td>
+                <td>{{ permiso.descripcion }}</td>
+                <td>{{ permiso.fecha_permiso }}</td>
+                <td>{{ permiso.estado }}</td>
+                <td>{{ permiso.admin }}</td>
+                <td>{{ permiso.comentarios_admin }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

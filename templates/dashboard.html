@@ -1,0 +1,39 @@
+<table border="1">
+    <a href="{{ url_for('todos_los_permisos') }}">Ver Todos los Permisos</a> <!-- Botón para ver todos los permisos -->
+<a href="{{ url_for('registrar_usuario') }}">Registrar Usuario</a> <!-- Botón para registrar usuario -->
+    <thead>
+        <tr>
+            <th>Empleado</th>
+            <th>Tipo de Permiso</th>
+            <th>Descripción</th>
+            <th>Fecha del Permiso</th>
+            <th>Hora de Inicio</th>
+            <th>Hora de Fin</th>
+            <th>Ver Historial</th>
+            <th>Acciones</th> <!-- Nueva columna para acciones -->
+        </tr>
+    </thead>
+    <tbody>
+        <h3>Permisos Pendientes</h3>
+        {% for permiso in permisos %}
+        
+        <tr>
+            <td>{{ permiso.nombre }}</td>
+            <td>{{ permiso.tipo_permiso }}</td>
+            <td>{{ permiso.descripcion }}</td>
+            <td>{{ permiso.fecha_permiso }}</td>
+            <td>{{ permiso.hora_inicio }}</td>
+            <td>{{ permiso.hora_fin }}</td>
+            <td><a href="{{ url_for('permisos', id_usuario=permiso.id_usuario) }}">Ver Historial</a></td>
+            <td>
+                <!-- Botones para cambiar el estado del permiso -->
+                <form method="post" action="{{ url_for('cambiar_estado', id_permiso=permiso.id_permiso) }}">
+                    <button name="estado" value="aprobado" type="submit">Aprobar</button>
+                    <button name="estado" value="rechazado" type="submit">Rechazar</button>
+                    <button name="estado" value="cancelado" type="submit">Cancelar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

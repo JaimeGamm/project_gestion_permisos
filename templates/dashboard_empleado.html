@@ -1,0 +1,27 @@
+<h1>Bienvenido {{ nombre }}</h1>
+
+<h2>Historial de Permisos</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Tipo de Permiso</th>
+            <th>Fecha</th>
+            <th>Hora Inicio</th>
+            <th>Hora Fin</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for permiso in permisos %}
+        <tr>
+            <td>{{ permiso.tipo_permiso }}</td>
+            <td>{{ permiso.fecha_permiso }}</td>
+            <td>{{ permiso.hora_inicio }}</td>
+            <td>{{ permiso.hora_fin }}</td>
+            <td>{{ permiso.estado }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('solicitar_permiso') }}">Solicitar un nuevo permiso</a>
