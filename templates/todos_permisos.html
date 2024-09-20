@@ -5,9 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos los Permisos</title>
 </head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa;
+
+    }
+    
+    h3 {
+        text-align: left;
+        color: #4a4a4a;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    thead {
+        background-color: #564ecc;
+        color: white;
+    }
+
+    thead th {
+        padding: 5px;
+        font-weight: normal;
+        text-align: left;
+        font-size: 14px;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    tbody tr:nth-of-type(even) {
+        background-color: #f9f9f9;
+    }
+
+    tbody td {
+        padding: 5px;
+        text-align: left;
+        color: #333;
+        font-size: 12px;
+    }
+
+    tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 4px 6px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    a {
+        text-decoration: none;
+        color: #4CAF50;
+        font-weight: bold;
+    }
+
+    a:hover {
+        color: #45a049;
+    }
+
+    td a {
+        color: #7386d5;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 10px;
+        font-size: 14px;
+        color: white;
+        background-color: #564ecc; /* Azul */
+        border: none;
+        border-radius: 5px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #0056b3; /* Azul más oscuro para el hover */
+    }
+
+</style>
 <body>
     <h2>Todos los Permisos</h2>
-    <a href="{{ url_for('dashboard') }}">Volver al Dashboard</a>
+    <a href="{{ url_for('dashboard') }}" class="btn" >Volver al Dashboard</a>
     <table border="1">
         <thead>
             <tr>

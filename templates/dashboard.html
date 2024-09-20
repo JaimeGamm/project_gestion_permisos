@@ -1,5 +1,51 @@
-<style>
-    body {
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permisos</title>
+    <style>
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: red;
+            cursor: pointer;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+
+        body {
         font-family: Arial, sans-serif;
         background-color: #f5f7fa;
 
@@ -96,10 +142,18 @@
         background-color: #0056b3; /* Azul más oscuro para el hover */
     }
 
-</style>
-<table border="1">
-    <a href="{{ url_for('todos_los_permisos') }}" class="btn" >Ver Todos los Permisos</a> <!-- Botón para ver todos los permisos -->
-<a href="{{ url_for('registrar_usuario') }}" class="btn" >Registrar Usuario</a> <!-- Botón para registrar usuario -->
+
+    </style>
+</head>
+<body>
+
+<a href="{{ url_for('todos_los_permisos') }}" class="btn">Ver Todos los Permisos</a>
+<a href="{{ url_for('registrar_usuario') }}" class="btn">Registrar Usuario</a>
+<a href="{{ url_for('logout') }}" class="btn">Cerrar Sesion</a>
+
+<h3>Permisos Pendientes</h3>
+
+<table>
     <thead>
         <tr>
             <th>Empleado</th>
@@ -109,13 +163,11 @@
             <th>Hora de Inicio</th>
             <th>Hora de Fin</th>
             <th>Ver Historial</th>
-            <th>Acciones</th> <!-- Nueva columna para acciones -->
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-        <h3>Permisos Pendientes</h3>
         {% for permiso in permisos %}
-        
         <tr>
             <td>{{ permiso.nombre }}</td>
             <td>{{ permiso.tipo_permiso }}</td>
@@ -126,13 +178,51 @@
             <td><a href="{{ url_for('permisos', id_usuario=permiso.id_usuario) }}">Ver Historial</a></td>
             <td>
                 <!-- Botones para cambiar el estado del permiso -->
-                <form method="post" action="{{ url_for('cambiar_estado', id_permiso=permiso.id_permiso) }}">
-                    <button name="estado" value="aprobado" type="submit">Aprobar</button>
-                    <button name="estado" value="rechazado" type="submit">Rechazar</button>
-                    <button name="estado" value="cancelado" type="submit">Cancelar</button>
-                </form>
+                <button class="btn" onclick="openModal('{{ permiso.id_permiso }}', 'aprobado')">Aprobar</button>
+                <button class="btn" onclick="openModal('{{ permiso.id_permiso }}', 'rechazado')">Rechazar</button>
+                <button class="btn" onclick="openModal('{{ permiso.id_permiso }}', 'cancelado')">Cancelar</button>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Modal para agregar comentario -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Cambio de estado</h2>
+        <p>Por favor agregue un comentario sobre el cambio de estado (opcional):</p>
+        <form id="estadoForm" method="post">
+            <textarea name="comentario" rows="4" cols="50" placeholder="Escribe tu comentario aquí..."></textarea><br><br>
+            <input type="hidden" name="estado" id="estadoHidden">
+            <button type="button" onclick="submitForm(true)">Agregar Comentario</button>
+            <button type="button" onclick="submitForm(false)">Enviar sin Comentario</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Abrir modal
+    function openModal(id_permiso, estado) {
+        document.getElementById('estadoForm').action = '/cambiar_estado/' + id_permiso;
+        document.getElementById('estadoHidden').value = estado;
+        document.getElementById('myModal').style.display = 'block';
+    }
+
+    // Cerrar modal
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+
+    // Enviar el formulario
+    function submitForm(hasComment) {
+        if (!hasComment) {
+            document.querySelector('textarea').value = ''; // Limpiar comentario si no desea agregar
+        }
+        document.getElementById('estadoForm').submit(); // Enviar el formulario
+    }
+</script>
+
+</body>
+</html>

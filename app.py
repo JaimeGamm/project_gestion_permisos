@@ -84,22 +84,24 @@ def logout():
     session.pop('id_usuario', None)
     session.pop('nombre', None)
     flash('Cerraste sesión exitosamente', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('clear_flash'))
+
 
 # Ruta para cambiar el estado de un permiso
 @app.route('/cambiar_estado/<int:id_permiso>', methods=['POST'])
 def cambiar_estado(id_permiso):
     if 'loggedin' in session and session['id_usuario']:  # Verifica que haya una sesión iniciada
         nuevo_estado = request.form['estado']
+        comentario_admin = request.form.get('comentario', '')  # Obtener comentario si existe
         id_admin = session['id_usuario']  # El administrador que cambia el estado
 
         cursor = mysql.connection.cursor()
-        # Actualizar el estado del permiso y registrar el administrador que lo modificó
+        # Actualizar el estado del permiso, registrar el administrador y el comentario
         cursor.execute('''
             UPDATE permisos 
-            SET estado = %s, id_admin = %s 
+            SET estado = %s, id_admin = %s, comentarios_admin = %s, fecha_revision = NOW()
             WHERE id_permiso = %s
-        ''', (nuevo_estado, id_admin, id_permiso))
+        ''', (nuevo_estado, id_admin, comentario_admin, id_permiso))
         mysql.connection.commit()
 
         flash(f'El permiso ha sido {nuevo_estado}', 'success')
@@ -183,6 +185,11 @@ def solicitar_permiso():
     else:
         flash('Por favor inicia sesión', 'danger')
         return redirect(url_for('login'))
+
+@app.route('/clear_flash')
+def clear_flash():
+    session.pop('_flashes', None)
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
