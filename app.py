@@ -191,6 +191,45 @@ def clear_flash():
     session.pop('_flashes', None)
     return redirect(url_for('login'))
 
+@app.route('/top_empleados')
+def top_empleados():
+    if 'loggedin' in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Consulta SQL para obtener el top 5 de empleados con más permisos solicitados este mes
+        cursor.execute('''
+            SELECT u.nombre, COUNT(p.id_permiso) AS total_permisos
+            FROM permisos p
+            JOIN usuarios u ON p.id_usuario = u.id_usuario
+            WHERE MONTH(p.fecha_solicitud) = MONTH(CURRENT_DATE)
+            GROUP BY u.nombre
+            ORDER BY total_permisos DESC
+            LIMIT 5
+        ''')
+        top_empleados = cursor.fetchall()
+        return {"top_empleados": top_empleados}
+    else:
+        flash('Por favor inicia sesión', 'danger')
+        return redirect(url_for('login'))
+
+# Ruta para obtener el número de permisos solicitados por mes en el año
+@app.route('/permisos_por_mes')
+def permisos_por_mes():
+    if 'loggedin' in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Consulta SQL para obtener el número de permisos solicitados por mes en el año actual
+        cursor.execute('''
+            SELECT MONTH(fecha_permiso) AS mes, COUNT(id_permiso) AS total_permisos
+            FROM permisos
+            WHERE YEAR(fecha_permiso) = YEAR(CURRENT_DATE)
+            GROUP BY mes
+            ORDER BY mes;
+        ''')
+        permisos_por_mes = cursor.fetchall()
+        return {"permisos_por_mes": permisos_por_mes}
+    else:
+        flash('Por favor inicia sesión', 'danger')
+        return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

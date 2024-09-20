@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Permisos</title>
     <style>
         /* Estilos para el modal */
@@ -142,6 +143,11 @@
         background-color: #0056b3; /* Azul más oscuro para el hover */
     }
 
+    canvas {
+    width: 100% !important;  /* Establece el ancho al 100% del contenedor */
+    height: 400px !important; /* Fija una altura de 400px */
+}
+
 
     </style>
 </head>
@@ -222,6 +228,100 @@
         }
         document.getElementById('estadoForm').submit(); // Enviar el formulario
     }
+</script>
+<h3>Top 5 Empleados con más Permisos Solicitados este Mes</h3>
+<canvas id="topEmpleadosChart" width="400" height="200"></canvas>
+<script>
+    // Función para obtener los datos del top 5 de empleados
+    async function obtenerTopEmpleados() {
+        const response = await fetch('/top_empleados');
+        const data = await response.json();
+        return data.top_empleados;
+    }
+
+    // Función para generar la gráfica
+    async function generarGrafica() {
+        const topEmpleados = await obtenerTopEmpleados();
+        
+        // Extraemos los nombres y los totales de permisos solicitados
+        const nombres = topEmpleados.map(e => e.nombre);
+        const totalPermisos = topEmpleados.map(e => e.total_permisos);
+
+        // Creamos la gráfica de barras
+        const ctx = document.getElementById('topEmpleadosChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: nombres,
+                datasets: [{
+                    label: 'Permisos Solicitados',
+                    data: totalPermisos,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Llamamos a la función para generar la gráfica
+    generarGrafica();
+</script>
+
+<h3>Permisos Solicitados por cada Mes del año</h3>
+<canvas id="permisosChart"></canvas>
+
+<script>
+    // Obtener los datos de permisos por mes desde Flask usando fetch
+fetch('/permisos_por_mes')
+    .then(response => response.json())
+    .then(data => {
+        const permisosData = data.permisos_por_mes;
+
+        // Crear un array con 12 posiciones (una para cada mes) inicializado en 0
+        const totalPermisosPorMes = new Array(12).fill(0);
+
+        // Iterar sobre los datos de permisos y asignar el total al mes correspondiente
+        permisosData.forEach(item => {
+            const mesIndex = item.mes - 1; // Los meses van de 1 a 12, pero los arrays empiezan en 0
+            totalPermisosPorMes[mesIndex] = item.total_permisos;
+        });
+
+        // Etiquetas de los meses
+        const labels = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        // Crear la gráfica de líneas
+        const ctx = document.getElementById('permisosChart').getContext('2d');
+        const permisosChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Permisos Solicitados',
+                    data: totalPermisosPorMes, // Usar los datos alineados con los meses
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+
 </script>
 
 </body>
