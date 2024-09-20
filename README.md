@@ -27,7 +27,13 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
     venv\Scripts\activate      # En Windows
     ```
 
-3. Instala las dependencias necesarias usando `pip`:
+3. Instala Flask y Flask-MySQLdb:
+
+    ```bash
+    pip install Flask Flask-MySQLdb
+    ```
+
+4. Instala las demás dependencias utilizando el archivo `requirements.txt`:
 
     ```bash
     pip install -r requirements.txt
@@ -37,7 +43,7 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
 1. **Asegúrate de tener MySQL instalado y en funcionamiento**. Si no lo tienes instalado, puedes descargarlo desde [aquí](https://dev.mysql.com/downloads/installer/).
 
-2. Crea la base de datos en MySQL utilizando el script SQL proporcionado. Primero, inicia sesión en MySQL y luego ejecuta lo siguiente:
+2. Crea la base de datos en MySQL utilizando el siguiente comando:
 
     ```sql
     CREATE DATABASE gestion_permisos_2db;
