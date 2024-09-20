@@ -19,21 +19,13 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
     cd project_gestion_permisos
     ```
 
-2. Crea un entorno virtual (opcional pero recomendado):
-
-    ```bash
-    python -m venv venv
-    source venv/bin/activate   # En Linux/macOS
-    venv\Scripts\activate      # En Windows
-    ```
-
-3. Instala Flask y Flask-MySQLdb:
+2. Instala Flask y Flask-MySQLdb:
 
     ```bash
     pip install Flask Flask-MySQLdb
     ```
 
-4. Instala las demás dependencias utilizando el archivo `requirements.txt`:
+3. Instala las demás dependencias utilizando el archivo `requirements.txt`:
 
     ```bash
     pip install -r requirements.txt
@@ -49,7 +41,7 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
     CREATE DATABASE gestion_permisos_2db;
     ```
 
-3. Ahora, ejecuta el script SQL para crear las tablas necesarias. El archivo `project_gestion_permisos_sql.sql` contiene las tablas y relaciones necesarias. Puedes ejecutarlo en MySQL de la siguiente manera:
+3. El archivo `project_gestion_permisos_sql.sql` contiene las instrucciones necesarias para crear las tablas y relaciones de la base de datos. Puedes ejecutar este archivo en tu entorno MySQL de la siguiente manera:
 
     ```bash
     mysql -u tu_usuario -p gestion_permisos_2db < project_gestion_permisos_sql.sql
