@@ -172,11 +172,27 @@ def solicitar_permiso():
             hora_fin = request.form['hora_fin']
 
             cursor = mysql.connection.cursor()
+            
+            # Insertar la solicitud de permiso
             cursor.execute('''
                 INSERT INTO permisos (id_usuario, tipo_permiso, descripcion, fecha_permiso, hora_inicio, hora_fin)
                 VALUES (%s, %s, %s, %s, %s, %s)
             ''', (id_usuario, tipo_permiso, descripcion, fecha_permiso, hora_inicio, hora_fin))
             mysql.connection.commit()
+
+            # Obtener el ID del permiso recién insertado
+            id_permiso = cursor.lastrowid
+
+            # Verificar y modificar el estado del permiso automáticamente
+            nuevo_estado, comentario_admin = verificar_permiso_automatico(id_usuario, tipo_permiso, fecha_permiso, hora_inicio, hora_fin)
+
+            # Actualizar el estado del permiso si ha cambiado
+            if nuevo_estado:
+                cursor.execute('''
+                    UPDATE permisos SET estado = %s, comentarios_admin = %s
+                    WHERE id_permiso = %s
+                ''', (nuevo_estado, comentario_admin, id_permiso))
+                mysql.connection.commit()
 
             flash('Permiso solicitado exitosamente', 'success')
             return redirect(url_for('dashboard_empleado'))
@@ -185,6 +201,49 @@ def solicitar_permiso():
     else:
         flash('Por favor inicia sesión', 'danger')
         return redirect(url_for('login'))
+
+# Función para verificar reglas automáticas de permisos
+def verificar_permiso_automatico(id_usuario, tipo_permiso, fecha_permiso, hora_inicio, hora_fin):
+    cursor = mysql.connection.cursor()
+
+    # Regla 1: Rechazar permisos de salud si el empleado ha solicitado más de 3 en el mismo mes
+    if tipo_permiso == 'salud':
+        cursor.execute('''
+            SELECT COUNT(*) FROM permisos
+            WHERE id_usuario = %s AND tipo_permiso = 'salud'
+            AND MONTH(fecha_permiso) = MONTH(%s)
+            AND YEAR(fecha_permiso) = YEAR(%s)
+        ''', (id_usuario, fecha_permiso, fecha_permiso))
+        conteo_permisos = cursor.fetchone()[0]
+        if conteo_permisos >= 3:
+            comentario_admin = 'Rechazado automáticamente: Se ha solicitado más de 3 permisos de salud este mes (Regla 1).'
+            return 'rechazado', comentario_admin
+
+    # Regla 2: Aprobar automáticamente si no ha habido permisos en los últimos 60 días
+    cursor.execute('''
+        SELECT COUNT(*) FROM permisos
+        WHERE id_usuario = %s AND fecha_permiso >= DATE_SUB(%s, INTERVAL 60 DAY)
+    ''', (id_usuario, fecha_permiso))
+    permisos_ultimos_60_dias = cursor.fetchone()[0]
+    if permisos_ultimos_60_dias == 0:
+        comentario_admin = 'Aprobado automáticamente: No ha habido permisos en los últimos 60 días (Regla 2).'
+        return 'aprobado', comentario_admin
+
+    # Regla 3: Cancelar si se solapan con otro permiso ya aprobado
+    cursor.execute('''
+        SELECT COUNT(*) FROM permisos
+        WHERE id_usuario = %s AND fecha_permiso = %s
+        AND hora_inicio < %s AND hora_fin > %s
+        AND estado = 'aprobado'
+    ''', (id_usuario, fecha_permiso, hora_fin, hora_inicio))
+    permisos_solapados = cursor.fetchone()[0]
+    if permisos_solapados > 0:
+        comentario_admin = 'Cancelado automáticamente: El permiso se solapa con otro permiso aprobado (Regla 3).'
+        return 'cancelado', comentario_admin
+
+    # Si no se aplica ninguna regla, dejar el estado como pendiente
+    return None, None
+
 
 @app.route('/clear_flash')
 def clear_flash():
