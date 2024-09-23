@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráficas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .btn {
+            margin: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Gráfico de Permisos por Tipo</h2>
+    <canvas id="barChart"></canvas>
+
+    <h2>Aprobaciones y Rechazos por Administrador</h2>
+    <canvas id="aprobacionesRechazosChart"></canvas>
+    
+    <a href="{{ url_for('dashboard') }}" class="btn">Volver al Dashboard</a>
+
+    <script>
+        // Obtener los datos desde el servidor
+        const labels = JSON.parse('{{ labels | safe }}');
+        const values = JSON.parse('{{ values | safe }}');
+
+        // Configuración del gráfico de barras
+        const ctx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Permisos por Tipo',
+                    data: values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+<script>
+    // Función para cargar la gráfica usando fetch
+    async function cargarGraficaAprobacionesRechazos() {
+        try {
+            // Hacer fetch a la nueva API
+            const response = await fetch('/api/grafica_aprobaciones_rechazos');
+            const data = await response.json();
+
+            // Desestructurar los datos recibidos
+            const { labels, aprobaciones, rechazos } = data;
+
+            // Configuración del gráfico de aprobaciones y rechazos
+            const ctxAprobacionesRechazos = document.getElementById('aprobacionesRechazosChart').getContext('2d');
+            const aprobacionesRechazosChart = new Chart(ctxAprobacionesRechazos, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Aprobaciones',
+                            data: aprobaciones,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Rechazos',
+                            data: rechazos,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error al cargar la gráfica:', error);
+        }
+    }
+
+    // Llamar a la función para cargar la gráfica cuando la página se cargue
+    window.onload = cargarGraficaAprobacionesRechazos;
+</script>
+    
+</body>
+</html>

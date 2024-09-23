@@ -104,31 +104,35 @@
     <title>Historial de Permisos</title>
 </head>
 <body>
-    <h2>Historial de Permisos</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Tipo de Permiso</th>
-                <th>Fecha del Permiso</th>
-                <th>Estado</th>
-                <th>Revisado por</th>
-                <th>Comentarios</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for permiso in permisos %}
-            <tr>
-                <td>{{ permiso.empleado }}</td>
-                <td>{{ permiso.tipo_permiso }}</td>
-                <td>{{ permiso.fecha_permiso }}</td>
-                <td>{{ permiso.estado }}</td>
-                <td>{{ permiso.admin }}</td>
-                <td>{{ permiso.comentarios_admin }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a href="{{ url_for('dashboard') }}" class="btn" >Volver</a>
+    
+    <section style="margin: 8px; padding: 4px;">
+        <h2>Historial de Permisos</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Tipo de Permiso</th>
+                    <th>Fecha del Permiso</th>
+                    <th>Estado</th>
+                    <th>Revisado por</th>
+                    <th>Comentarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for permiso in permisos %}
+                <tr>
+                    <td>{{ permiso.empleado }}</td>
+                    <td>{{ permiso.tipo_permiso }}</td>
+                    <td>{{ permiso.fecha_permiso }}</td>
+                    <td>{{ permiso.estado }}</td>
+                    <td>{{ permiso.admin }}</td>
+                    <td>{{ permiso.comentarios_admin }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('dashboard') }}" class="btn" >Volver</a>
+    </section>
+
 </body>
 </html>

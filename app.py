@@ -3,6 +3,9 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
 
+import json
+from flask import jsonify
+
 app = Flask(__name__)
 
 # Clave secreta para sesiones Flask
@@ -11,7 +14,7 @@ app.secret_key = 'your_secret_key'
 # Configuración de MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'gamm1996'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'gestion_permisos_2db'
 
 mysql = MySQL(app)
@@ -288,6 +291,59 @@ def permisos_por_mes():
     else:
         flash('Por favor inicia sesión', 'danger')
         return redirect(url_for('login'))
+
+# Ruta para la nueva página de gráficas
+@app.route('/graficas')
+def graficas():
+    if 'loggedin' in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Consulta para contar los permisos por tipo
+        cursor.execute('''
+            SELECT tipo_permiso, COUNT(*) AS cantidad
+            FROM permisos
+            GROUP BY tipo_permiso
+        ''')
+        permisos_por_tipo = cursor.fetchall()
+
+        # Convertir datos a formato JSON para pasarlo a la plantilla
+        labels = [row['tipo_permiso'] for row in permisos_por_tipo]
+        values = [row['cantidad'] for row in permisos_por_tipo]
+
+        return render_template('graficas.html', labels=json.dumps(labels), values=json.dumps(values))
+    else:
+        flash('Por favor inicia sesión', 'danger')
+        return redirect(url_for('login'))
+
+from flask import jsonify
+
+@app.route('/api/grafica_aprobaciones_rechazos')
+def api_grafica_aprobaciones_rechazos():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Consulta para obtener las aprobaciones y rechazos por administrador
+    cursor.execute('''
+        SELECT u.nombre AS admin, 
+               SUM(CASE WHEN p.estado = 'aprobado' THEN 1 ELSE 0 END) AS aprobaciones,
+               SUM(CASE WHEN p.estado = 'rechazado' THEN 1 ELSE 0 END) AS rechazos
+        FROM permisos p
+        JOIN usuarios u ON p.id_admin = u.id_usuario
+        WHERE p.estado IN ('aprobado', 'rechazado')
+        GROUP BY u.nombre
+    ''')
+    
+    resultados = cursor.fetchall()
+    
+    # Procesar los datos
+    labels = [row['admin'] for row in resultados]
+    aprobaciones = [row['aprobaciones'] for row in resultados]
+    rechazos = [row['rechazos'] for row in resultados]
+    
+    return jsonify({
+        'labels': labels,
+        'aprobaciones': aprobaciones,
+        'rechazos': rechazos
+    })
+
 
 
 if __name__ == '__main__':
